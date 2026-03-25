@@ -1,0 +1,7 @@
+﻿Stakeholder,Role/Interest,Influence,Communication Frequency,Channel
+Product Team,Defines features & goals,High,Weekly,"Standups, Jira"
+Compliance Team,Ensures regulatory alignment,High,Bi-weekly,"Reports, Confluence"
+Operations Team,Manages manual review,Medium,Weekly,"Email, dashboards"
+IT/Engineering,Builds and maintains system,High,Daily,"Jira, Slack"
+Risk & Lending,Oversees credit policies,Medium,Monthly,Reports
+Customer Support,Handles customer queries,Low,Monthly,Email updates
