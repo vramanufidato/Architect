@@ -1,0 +1,76 @@
+import tensorflow as tf
+from tensorflow.keras.datasets import mnist
+
+
+
+# Load dataset
+(x_train, y_train), (x_test, y_test) = mnist.load_data()
+x_train, x_test = x_train / 255.0, x_test / 255.0
+
+# Build a simple model
+model = tf.keras.models.Sequential([
+    tf.keras.layers.Flatten(input_shape=(28, 28)),
+    tf.keras.layers.Dense(128, activation='relu'),
+    tf.keras.layers.Dropout(0.2),
+    tf.keras.layers.Dense(10, activation='softmax')
+])
+
+# Compile the model
+model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
+
+# Train the model
+model.fit(x_train, y_train, epochs=5, validation_data=(x_test, y_test))
+
+``````````
+from sklearn.metrics import accuracy_score, precision_score
+import numpy as np
+
+# Make predictions on the test set
+y_pred_probs = model.predict(x_test)
+y_pred = np.argmax(y_pred_probs, axis=1)
+
+# Calculate accuracy
+accuracy = accuracy_score(y_test, y_pred)
+print(f'Accuracy: {accuracy:.4f}')
+
+# Calculate precision (average='weighted' to handle multiple classes)
+precision = precision_score(y_test, y_pred, average='weighted')
+print(f'Precision: {precision:.4f}')
+
+``````````
+import time
+
+# Measure response time for multiple iterations
+start_time = time.time()
+for _ in range(25):
+    model.predict(x_test)
+end_time = time.time()
+
+average_response_time = (end_time - start_time) / 25
+print(f"Average Response Time: {average_response_time:.4f} seconds")
+
+``````````
+import psutil
+
+# Monitor resource usage
+cpu_usage = psutil.cpu_percent()
+memory_usage = psutil.virtual_memory().percent
+
+# for better results, measure CPU usage while inference is active,
+# and measure memory usage against a baseline before the model is loaded
+print(f"CPU Usage: {cpu_usage}%")
+print(f"Memory Usage: {memory_usage}%")
+
+``````````
+import numpy as np
+
+# Generate large input data for stress testing
+large_input = np.tile(x_test, (100, 1))
+
+# Measure performance under stress
+start_time = time.time()
+model.predict(large_input)
+end_time = time.time()
+
+stress_response_time = end_time - start_time
+print(f"Response Time under Stress: {stress_response_time:.4f} seconds")

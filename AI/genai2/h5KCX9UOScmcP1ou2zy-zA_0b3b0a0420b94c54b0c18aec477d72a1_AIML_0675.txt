@@ -1,0 +1,89 @@
+!pip install nltk spacy transformers
+
+``````````
+{
+    "slow_internet": {
+        "symptom": "My internet is slow.",
+        "solution": "Restart your router and check your connection settings."
+    },
+    "software_crash": {
+        "symptom": "The application keeps crashing.",
+        "solution": "Update the application and restart your computer."
+    },
+    "no_sound": {
+        "symptom": "No sound is coming from my speakers.",
+        "solution": "Check if the speakers are connected and not muted."
+    },
+    "printer_not_working": {
+        "symptom": "The printer is not working.",
+        "solution": "Ensure the printer is connected and check for paper jams."
+    },
+    "device_not_charging": {
+        "symptom": "My device is not charging.",
+        "solution": "Check if the charger is properly connected and working."
+    }
+}
+
+``````````
+import json  # Import the JSON library to work with data in JSON format
+from transformers import pipeline  # Import the pipeline tool from transformers for NLP
+import spacy  # Import spaCy for advanced NLP capabilities
+
+# Load a pre-trained spaCy model for general NLP tasks
+nlp = spacy.load("en_core_web_sm")
+
+# Initialize a question-answering NLP pipeline
+qa_pipeline = pipeline("question-answering")
+
+# Load the troubleshooting knowledge base
+with open('troubleshooting_knowledge_base.json', 'r') as f:
+    knowledge_base = json.load(f)  # Load JSON file containing issues and solutions
+
+# Define a function to match user input to the most relevant knowledge base entry
+def find_best_match(user_input, knowledge_base):
+    # Iterate over each issue in the knowledge base
+    for issue, details in knowledge_base.items():
+        symptom_text = details["symptom"]  # Access the symptom text for comparison
+        
+        # Use NLP model to calculate similarity between user input and symptom text
+        doc1 = nlp(user_input.lower())  # Convert user input to lowercase and process with spaCy
+        doc2 = nlp(symptom_text.lower())  # Process symptom text with spaCy for comparison
+
+        similarity = doc1.similarity(doc2)  # Calculate similarity score between input and symptom
+        if similarity > 0.75:  # Use a threshold (e.g., 0.75) to determine a match
+            return details["solution"]  # Return the solution if similarity threshold is met
+    
+    # Return default response if no match is found
+    return "No matching issue found in the knowledge base."
+
+# Gather user input from the console
+user_input = input("Please describe your problem: ")
+
+# Call the function to find the best match in the knowledge base
+solution = find_best_match(user_input, knowledge_base)
+
+# Output the solution or default response to the user
+print(f"Solution: {solution}")
+
+``````````
+# Define a function to troubleshoot internet-related issues with follow-up questions
+def diagnose_internet_issue():
+    print("Have you tried restarting your router?")  # Initial diagnostic question
+    response = input("Yes/No: ").strip().lower()  # Collect and standardize the user's response
+    
+    # Check user response to provide further guidance
+    if response == "no":
+        # If user hasn't restarted the router, suggest this step first
+        print("Please restart your router and check if the issue persists.")
+    else:
+        # If user already tried restarting, suggest advanced troubleshooting
+        print("Try resetting your network settings or contacting your provider.")
+
+# Trigger diagnostic logic if the user describes an internet-related problem
+if "internet" in user_input.lower() or "slow connection" in user_input.lower():
+    diagnose_internet_issue()
+
+``````````
+print("Attempting to reset your network settings automatically...")
+!sudo systemctl restart systemd-networkd.service
+print("Network settings have been reset. Please check your connection.")
