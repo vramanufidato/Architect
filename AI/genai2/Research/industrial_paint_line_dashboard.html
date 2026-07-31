@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Industrial Paint Line Planning Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #1e293b; }
+        .chart-container { 
+            position: relative; 
+            width: 100%; 
+            max-width: 1000px; 
+            margin-left: auto; 
+            margin-right: auto; 
+            height: 350px; 
+            max-height: 450px; 
+        }
+        @media (min-width: 768px) { .chart-container { height: 400px; } }
+        .vibrant-card { transition: transform 0.2s ease-in-out; }
+        .vibrant-card:hover { transform: translateY(-4px); }
+        .gradient-bg { background: linear-gradient(135deg, #1e293b 0%, #334155 100%); }
+        .accent-teal { color: #14b8a6; }
+        .bg-accent-teal { background-color: #14b8a6; }
+        .accent-orange { color: #f59e0b; }
+        .bg-accent-orange { background-color: #f59e0b; }
+        .step-node { position: relative; }
+        .step-node::after {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: 100%;
+            width: 2px;
+            height: 2rem;
+            background-color: #cbd5e1;
+            transform: translateX(-50%);
+        }
+        .step-node:last-child::after { display: none; }
+    </style>
+</head>
+<body class="p-0 m-0 overflow-x-hidden">
+
+<!-- 
+    PALETTE CHOICE: "Energetic & Playful"
+    - Deep Navy: #1e293b (Backgrounds/Text)
+    - Bright Teal: #14b8a6 (Primary Accents)
+    - Vivid Orange: #f59e0b (Secondary Accents)
+    - Slate Gray: #64748b (Secondary Text)
+    - Soft Cream: #f8fafc (Main Background)
+
+    NARRATIVE SUMMARY:
+    The infographic follows a strategic flow:
+    1. Hero: The $73.4B opportunity and macro growth.
+    2. Market Dynamics: Visualizing CAGR and regional dominance.
+    3. Technical Battle: Powder vs. Liquid performance comparison.
+    4. Regulatory & Safety: Critical compliance thresholds (FPM, Hazardous zones).
+    5. Financials: CapEx breakdown and ROI through energy recovery.
+    6. Roadmap: 5-Phase execution strategy.
+
+    VISUALIZATION SUMMARY:
+    - Market Growth Line Chart -> Goal: Change (Chart.js Canvas)
+    - Transfer Efficiency Bar Chart -> Goal: Compare (Chart.js Canvas)
+    - Tech Performance Radar Chart -> Goal: Compare (Chart.js Canvas)
+    - CapEx Distribution Donut -> Goal: Composition (Chart.js Canvas)
+    - Regional Share -> Goal: Composition (Plotly Canvas)
+    - NO SVG OR MERMAID JS USED.
+-->
+
+    <nav class="sticky top-0 z-50 w-full bg-white/80 backdrop-blur-md border-b border-slate-200 py-4 px-6 mb-8 shadow-sm">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <span class="text-xl font-bold tracking-tight accent-teal uppercase">Industrial Finishings <span class="text-slate-400">| Strategic Blueprint</span></span>
+            <div class="hidden md:flex space-x-8 text-sm font-semibold uppercase tracking-wider text-slate-500">
+                <a href="#trends" class="hover:text-teal-600 transition">Trends</a>
+                <a href="#tech" class="hover:text-teal-600 transition">Tech</a>
+                <a href="#safety" class="hover:text-teal-600 transition">Safety</a>
+                <a href="#finance" class="hover:text-teal-600 transition">Finance</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-20">
+        
+        <!-- Section 1: Hero & Market Overview -->
+        <header class="mb-16 text-center">
+            <h1 class="text-4xl md:text-6xl font-extrabold text-slate-900 mb-4">Industrial Paint Line Planning</h1>
+            <p class="text-lg md:text-xl text-slate-600 max-w-3xl mx-auto mb-10 leading-relaxed">
+                Strategic assessment and technical blueprint for modern finishing facilities. Navigate the shift toward 
+                sustainable powder coatings and automated, high-efficiency spray architectures.
+            </p>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="gradient-bg p-8 rounded-2xl shadow-xl text-white">
+                    <div class="text-teal-400 text-sm font-bold uppercase mb-2">Market Target 2032</div>
+                    <div class="text-5xl font-black mb-1">$73.48B</div>
+                    <div class="text-slate-400 text-xs">Projected Global Valuation</div>
+                </div>
+                <div class="bg-white p-8 rounded-2xl shadow-md border border-slate-100">
+                    <div class="text-teal-600 text-sm font-bold uppercase mb-2">Growth Rate (CAGR)</div>
+                    <div class="text-5xl font-black text-slate-900 mb-1">6.7%</div>
+                    <div class="text-slate-500 text-xs">Total Industrial Coatings Segment</div>
+                </div>
+                <div class="bg-white p-8 rounded-2xl shadow-md border border-slate-100">
+                    <div class="text-amber-500 text-sm font-bold uppercase mb-2">Powder Reclaim Rate</div>
+                    <div class="text-5xl font-black text-slate-900 mb-1">98%</div>
+                    <div class="text-slate-500 text-xs">Maximum Material Utilization</div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Section 2: Trends & Regional Dynamics -->
+        <section id="trends" class="mb-20">
+            <div class="bg-white rounded-3xl p-8 md:p-12 shadow-lg border border-slate-50">
+                <h2 class="text-3xl font-bold mb-6 flex items-center">
+                    <span class="w-2 h-8 bg-accent-teal rounded mr-4"></span>Market Dynamics & Regional Trajectories
+                </h2>
+                <p class="text-slate-600 mb-10 text-lg leading-relaxed">
+                    The global industrial coatings landscape is undergoing a structural transition driven by decarbonization goals 
+                    and advancements in resin chemistry. Regional demand is heavily concentrated in the Asia-Pacific (APAC) corridor, 
+                    while North America and Europe lead technical standard-setting for low-VOC compliance.
+                </p>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                    <div>
+                        <h3 class="text-xl font-semibold mb-4 text-slate-800">Global Revenue Growth Forecast</h3>
+                        <div class="chart-container">
+                            <canvas id="marketGrowthChart"></canvas>
+                        </div>
+                        <p class="mt-6 text-sm text-slate-500 italic">
+                            *Visualizing the expansion from $46.67B baseline to 2032 targets. Note the steady 6.7% CAGR driving capital investment decisions.
+                        </p>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-semibold mb-4 text-slate-800">Regional Market Concentration (2025)</h3>
+                        <div id="regionalPlot" class="w-full" style="height: 400px;"></div>
+                        <p class="mt-6 text-sm text-slate-500 italic">
+                            *APAC accounts for nearly half of total industrial sales (45.0%), driven by rapid infrastructure and automotive assembly.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 3: Technology Selection -->
+        <section id="tech" class="mb-20">
+            <div class="mb-12 text-center max-w-4xl mx-auto">
+                <h2 class="text-3xl font-bold mb-4">Technology Selection: Powder vs. Liquid</h2>
+                <p class="text-slate-600 leading-relaxed">
+                    The choice between dry powder and liquid systems dictates facility space, utility draw, and long-term operating costs. 
+                    While liquid excels in color variety and heat-sensitive substrates, powder systems dominate in material efficiency and environmental compliance.
+                </p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+                <div class="bg-white p-8 rounded-3xl shadow-md border-t-4 border-teal-500">
+                    <h3 class="text-xl font-bold mb-6 text-slate-900">Powder Coating System</h3>
+                    <ul class="space-y-4">
+                        <li class="flex items-start">
+                            <span class="bg-teal-100 text-teal-700 px-2 py-1 rounded text-xs font-bold mr-3 mt-1">PRO</span>
+                            <span class="text-slate-700">Near-zero VOC emissions; eliminates need for expensive RTO systems.</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="bg-teal-100 text-teal-700 px-2 py-1 rounded text-xs font-bold mr-3 mt-1">PRO</span>
+                            <span class="text-slate-700">95-98% material utilization via cyclone/cartridge reclaim units.</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="bg-orange-100 text-orange-700 px-2 py-1 rounded text-xs font-bold mr-3 mt-1">CON</span>
+                            <span class="text-slate-700">Higher initial CapEx due to complex reclaim and bake oven infrastructure.</span>
+                        </li>
+                    </ul>
+                </div>
+                <div class="bg-white p-8 rounded-3xl shadow-md border-t-4 border-slate-400">
+                    <h3 class="text-xl font-bold mb-6 text-slate-900">Liquid Spray System</h3>
+                    <ul class="space-y-4">
+                        <li class="flex items-start">
+                            <span class="bg-teal-100 text-teal-700 px-2 py-1 rounded text-xs font-bold mr-3 mt-1">PRO</span>
+                            <span class="text-slate-700">Lower curing heat (80-140°C) allows for plastics and composites.</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="bg-orange-100 text-orange-700 px-2 py-1 rounded text-xs font-bold mr-3 mt-1">CON</span>
+                            <span class="text-slate-700">High VOC emissions (up to 700 g/L); creates hazardous waste sludge.</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="bg-orange-100 text-orange-700 px-2 py-1 rounded text-xs font-bold mr-3 mt-1">CON</span>
+                            <span class="text-slate-700">Poor transfer efficiency (30-50% material loss) in traditional setups.</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="bg-slate-900 rounded-3xl p-8 md:p-12 text-white overflow-hidden relative">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                    <div>
+                        <h3 class="text-2xl font-bold mb-4">Comparative Performance Metrics</h3>
+                        <p class="text-slate-400 mb-8">
+                            This radar visualization compares core technical attributes. Powder systems offer superior corrosion and chip resistance, 
+                            whereas liquid systems provide greater flexibility for heat-sensitive assembly materials.
+                        </p>
+                        <div class="chart-container">
+                            <canvas id="performanceRadarChart"></canvas>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="text-2xl font-bold mb-6">Spray Gun Transfer Efficiency</h3>
+                        <div class="chart-container">
+                            <canvas id="efficiencyBarChart"></canvas>
+                        </div>
+                        <p class="text-slate-400 mt-6 text-sm">
+                            Choosing high-end automation like Rotary Bells (95%) vs. Conventional Pneumatic guns (35%) can reduce paint consumption by over 60% 
+                            on high-volume production lines.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 4: Safety & Compliance -->
+        <section id="safety" class="mb-20">
+            <h2 class="text-3xl font-bold mb-8 text-center">Regulatory & Compliance Mandates</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                    <div class="w-10 h-10 bg-teal-500 rounded-lg flex items-center justify-center text-white font-bold mb-4">!</div>
+                    <h4 class="font-bold text-slate-900 mb-2">100 FPM Airflow</h4>
+                    <p class="text-sm text-slate-600">NFPA 33 mandated minimum velocity across booth openings to prevent explosive vapor accumulation.</p>
+                </div>
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                    <div class="w-10 h-10 bg-amber-500 rounded-lg flex items-center justify-center text-white font-bold mb-4">Ω</div>
+                    <h4 class="font-bold text-slate-900 mb-2">Ground Path</h4>
+                    <p class="text-sm text-slate-600">Resistance must remain below 1x10⁶ Ω to prevent electrostatic spark discharge and fire risk.</p>
+                </div>
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                    <div class="w-10 h-10 bg-slate-800 rounded-lg flex items-center justify-center text-white font-bold mb-4">3'</div>
+                    <h4 class="font-bold text-slate-900 mb-2">Clearance Gap</h4>
+                    <p class="text-sm text-slate-600">Mandatory physical separation between spray zones and combustible storage or plant walkways.</p>
+                </div>
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                    <div class="w-10 h-10 bg-red-600 rounded-lg flex items-center justify-center text-white font-bold mb-4">DHA</div>
+                    <h4 class="font-bold text-slate-900 mb-2">Dust Hazard</h4>
+                    <p class="text-sm text-slate-600">Required formal analysis for powder systems to size explosion relief vents and isolation valves.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 5: Financial Modeling -->
+        <section id="finance" class="mb-20 bg-teal-50 rounded-3xl p-8 md:p-12">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                <div>
+                    <h2 class="text-3xl font-bold mb-6">Financial Modeling & CapEx</h2>
+                    <p class="text-slate-600 mb-8 text-lg">
+                        Capital allocation requires balancing initial high-cost engineering (Pre-treatment and Curing) against long-term OpEx. 
+                        Integrating waste heat recovery (RTO) typically yields natural gas savings of 15% to 30%.
+                    </p>
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between p-4 bg-white rounded-xl shadow-sm">
+                            <span class="font-semibold">Avg. Net Profit Margin</span>
+                            <span class="text-teal-600 font-bold">12% - 18%</span>
+                        </div>
+                        <div class="flex items-center justify-between p-4 bg-white rounded-xl shadow-sm">
+                            <span class="font-semibold">Energy Recovery Payback</span>
+                            <span class="text-teal-600 font-bold">18 - 36 Months</span>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="text-xl font-bold mb-6 text-center">Baseline CapEx Distribution</h3>
+                    <div class="chart-container">
+                        <canvas id="capexDonutChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 6: Roadmap -->
+        <section id="roadmap">
+            <h2 class="text-3xl font-bold mb-12 text-center text-slate-900 uppercase tracking-tighter">Strategic Implementation Roadmap</h2>
+            <div class="max-w-4xl mx-auto">
+                <div class="flex flex-col space-y-0">
+                    <div class="step-node flex space-x-6 pb-12">
+                        <div class="flex-shrink-0 w-12 h-12 bg-teal-600 text-white rounded-full flex items-center justify-center font-black">1</div>
+                        <div>
+                            <h4 class="text-xl font-bold text-slate-900">Substrate Profiling</h4>
+                            <p class="text-slate-600">Establish maximum part envelope, weight profiles, and metal composition (CRS, Aluminum, etc.) to define line speed targets.</p>
+                        </div>
+                    </div>
+                    <div class="step-node flex space-x-6 pb-12">
+                        <div class="flex-shrink-0 w-12 h-12 bg-teal-600 text-white rounded-full flex items-center justify-center font-black">2</div>
+                        <div>
+                            <h4 class="text-xl font-bold text-slate-900">Technology & TCO Modeling</h4>
+                            <p class="text-slate-600">Conduct 10-year Total Cost of Ownership analysis. Select between powder and liquid based on substrate thermal limits.</p>
+                        </div>
+                    </div>
+                    <div class="step-node flex space-x-6 pb-12">
+                        <div class="flex-shrink-0 w-12 h-12 bg-teal-600 text-white rounded-full flex items-center justify-center font-black">3</div>
+                        <div>
+                            <h4 class="text-xl font-bold text-slate-900">Code Compliance & Permitting</h4>
+                            <p class="text-slate-600">Coordinate with Fire Marshals and AHJ to certify ventilation face velocities and hazardous electrical zone classifications.</p>
+                        </div>
+                    </div>
+                    <div class="step-node flex space-x-6 pb-12">
+                        <div class="flex-shrink-0 w-12 h-12 bg-teal-600 text-white rounded-full flex items-center justify-center font-black">4</div>
+                        <div>
+                            <h4 class="text-xl font-bold text-slate-900">Automation Integration</h4>
+                            <p class="text-slate-600">Deploy reciprocators or 6-axis articulated robots to standardize spray distances and maximize transfer efficiency.</p>
+                        </div>
+                    </div>
+                    <div class="step-node flex space-x-6">
+                        <div class="flex-shrink-0 w-12 h-12 bg-teal-600 text-white rounded-full flex items-center justify-center font-black">5</div>
+                        <div>
+                            <h4 class="text-xl font-bold text-slate-900">System Validation</h4>
+                            <p class="text-slate-600">Thermal profiling with data loggers to confirm complete cross-linking across varying part thicknesses.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-slate-900 text-slate-500 py-12 px-6 text-center text-sm border-t border-slate-800">
+        <p class="mb-4 text-slate-300">© 2024 Industrial Paint Planning | Data-Driven Strategic Blueprint</p>
+        <p>Source Data: NFPA 33, OSHA 29 CFR 1910, Market Growth Reports 2025-2032</p>
+    </footer>
+
+    <script>
+        // --- HELPER: Label Wrapping Logic (>16 chars) ---
+        function wrapLabels(labels) {
+            return labels.map(label => {
+                if (label.length <= 16) return label;
+                const words = label.split(' ');
+                const lines = [];
+                let currentLine = '';
+                words.forEach(word => {
+                    if ((currentLine + word).length > 16) {
+                        lines.push(currentLine.trim());
+                        currentLine = word + ' ';
+                    } else {
+                        currentLine += word + ' ';
+                    }
+                });
+                lines.push(currentLine.trim());
+                return lines;
+            });
+        }
+
+        // --- GLOBAL TOOLTIP CONFIG ---
+        const tooltipConfig = {
+            callbacks: {
+                title: function(tooltipItems) {
+                    const item = tooltipItems[0];
+                    let label = item.chart.data.labels[item.dataIndex];
+                    if (Array.isArray(label)) {
+                        return label.join(' ');
+                    } else {
+                        return label;
+                    }
+                }
+            }
+        };
+
+        // --- CHART 1: Market Growth Line Chart ---
+        const ctxGrowth = document.getElementById('marketGrowthChart').getContext('2d');
+        new Chart(ctxGrowth, {
+            type: 'line',
+            data: {
+                labels: ['2025 (Baseline)', '2027', '2029', '2031', '2032 (Target)'],
+                datasets: [{
+                    label: 'Industrial Coatings ($B USD)',
+                    data: [46.67, 53.12, 60.45, 68.80, 73.48],
+                    borderColor: '#14b8a6',
+                    backgroundColor: 'rgba(20, 184, 166, 0.1)',
+                    borderWidth: 4,
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 6,
+                    pointBackgroundColor: '#14b8a6'
+                }]
+            },
+            options: {
+                maintainAspectRatio: false,
+                responsive: true,
+                plugins: { 
+                    legend: { display: false },
+                    tooltip: tooltipConfig
+                },
+                scales: {
+                    y: { beginAtZero: false, grid: { color: '#f1f5f9' } },
+                    x: { grid: { display: false } }
+                }
+            }
+        });
+
+        // --- CHART 2: Performance Radar Chart ---
+        const ctxRadar = document.getElementById('performanceRadarChart').getContext('2d');
+        new Chart(ctxRadar, {
+            type: 'radar',
+            data: {
+                labels: wrapLabels(['Corrosion Resistance', 'Material Efficiency', 'Energy Low-Heat', 'Substrate Flexibility', 'Regulatory Ease', 'Color Selection']),
+                datasets: [{
+                    label: 'Powder Coating',
+                    data: [95, 98, 40, 50, 95, 60],
+                    backgroundColor: 'rgba(20, 184, 166, 0.2)',
+                    borderColor: '#14b8a6',
+                    pointBackgroundColor: '#14b8a6'
+                }, {
+                    label: 'Liquid Spray',
+                    data: [60, 45, 90, 95, 30, 95],
+                    backgroundColor: 'rgba(245, 158, 11, 0.2)',
+                    borderColor: '#f59e0b',
+                    pointBackgroundColor: '#f59e0b'
+                }]
+            },
+            options: {
+                maintainAspectRatio: false,
+                responsive: true,
+                plugins: { 
+                    legend: { labels: { color: '#fff' } },
+                    tooltip: tooltipConfig
+                },
+                scales: {
+                    r: {
+                        angleLines: { color: '#334155' },
+                        grid: { color: '#334155' },
+                        pointLabels: { color: '#94a3b8', font: { size: 10 } },
+                        ticks: { display: false }
+                    }
+                }
+            }
+        });
+
+        // --- CHART 3: Transfer Efficiency Bar Chart ---
+        const ctxBar = document.getElementById('efficiencyBarChart').getContext('2d');
+        new Chart(ctxBar, {
+            type: 'bar',
+            data: {
+                labels: wrapLabels(['Conventional Pneumatic', 'HVLP Systems', 'Airless Assisted', 'Electrostatic Gun', 'Rotary Bells Automated']),
+                datasets: [{
+                    label: 'Transfer Efficiency (%)',
+                    data: [35, 55, 65, 85, 95],
+                    backgroundColor: '#14b8a6',
+                    borderRadius: 8
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                maintainAspectRatio: false,
+                responsive: true,
+                plugins: { 
+                    legend: { display: false },
+                    tooltip: tooltipConfig
+                },
+                scales: {
+                    x: { max: 100, grid: { color: '#334155' }, ticks: { color: '#94a3b8' } },
+                    y: { ticks: { color: '#94a3b8' } }
+                }
+            }
+        });
+
+        // --- CHART 4: CapEx Donut Chart ---
+        const ctxDonut = document.getElementById('capexDonutChart').getContext('2d');
+        new Chart(ctxDonut, {
+            type: 'doughnut',
+            data: {
+                labels: wrapLabels(['Chemical Pre-treatment', 'Coating Application', 'Automation & Robots', 'Curing Bake Ovens', 'Environmental Abatement']),
+                datasets: [{
+                    data: [30, 25, 20, 15, 10],
+                    backgroundColor: ['#14b8a6', '#0d9488', '#f59e0b', '#334155', '#64748b'],
+                    hoverOffset: 10,
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                maintainAspectRatio: false,
+                responsive: true,
+                plugins: { 
+                    legend: { position: 'bottom' },
+                    tooltip: tooltipConfig
+                },
+                cutout: '70%'
+            }
+        });
+
+        // --- PLOTLY 1: Regional Share (Sunburst/Pie Canvas Mode) ---
+        const regionalData = [{
+            values: [45.0, 38.2, 16.8],
+            labels: ['Asia-Pacific (APAC)', 'Powder Specific Revenues', 'Others (Global)'],
+            type: 'pie',
+            hole: 0.4,
+            marker: {
+                colors: ['#1e293b', '#14b8a6', '#f1f5f9']
+            },
+            textinfo: 'label+percent'
+        }];
+
+        const regionalLayout = {
+            margin: { t: 0, b: 0, l: 0, r: 0 },
+            showlegend: false,
+            paper_bgcolor: 'rgba(0,0,0,0)',
+            plot_bgcolor: 'rgba(0,0,0,0)'
+        };
+
+        const config = { 
+            responsive: true, 
+            displayModeBar: false,
+            renderer: 'canvas' 
+        };
+
+        Plotly.newPlot('regionalPlot', regionalData, regionalLayout, config);
+    </script>
+</body>
+</html>
