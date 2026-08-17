@@ -1,0 +1,68 @@
+You are an expert data visualization engineer.  
+I want you to build a fully interactive dashboard application that lets me upload a CSV or Excel file and then explore the data through multiple chart types, filters, and aggregations.
+
+KEY REQUIREMENTS (from the user):  
+“I want to make an interactive dashboard that allows me to visualize data in many different ways. I am going to provide the data for you, so please set up the dashboard with it accurately.”
+
+Your task:
+1. **File Upload**  
+   - Accept .csv, .xlsx, and .xls files.  
+   - Auto‑detect delimiter (comma, semicolon, tab).  
+   - Auto‑detect header row.  
+   - Show a preview (first 5 rows) after upload.
+
+2. **Data Profiling (Critical)**  
+   - Automatically classify each column as:  
+     • Numeric (continuous or discrete)  
+     • Categorical (strings, booleans, factors)  
+     • Date/Time (parse common formats)  
+   - Show column statistics (min, max, mean, unique count, null count) in a summary table.
+
+3. **Interactive Filtering**  
+   - For every categorical column → create a multi‑select dropdown filter.  
+   - For every numeric column → create a range slider filter (min–max).  
+   - For date columns → create a date range picker.  
+   - All filters must be linked (applied to all visualizations instantly).
+
+4. **Visualization Builder (the “many different ways” part)**  
+   Provide a side‑by‑side layout where the user can:  
+   - Choose a chart type from:  
+     • Bar chart (grouped/stacked)  
+     • Line chart (time series or trend)  
+     • Scatter plot (with optional color/size encoding)  
+     • Histogram (frequency distribution)  
+     • Box plot (for outliers and spread)  
+     • Pie / Donut chart (for composition)  
+     • Heatmap (for correlation matrix)  
+     • Treemap (hierarchical data)  
+     • Table (sortable, searchable)  
+   - For each chart, let the user map columns to:  
+     • X‑axis, Y‑axis, Color, Size, Facet/Group, Tooltip.  
+   - Allow **at least 3 charts** on the dashboard simultaneously (arranged in a grid).  
+   - Each chart should be resizable/draggable (if using a GUI framework) OR laid out in a clean 2‑column or 3‑column grid.
+
+5. **Dynamic Updates**  
+   - Every filter change, column mapping change, or chart‑type change must re‑render **only** the affected chart (not the whole page).  
+   - Show loading spinners while rendering.
+
+6. **Download & Export**  
+   - Add a button to download the **filtered dataset** as CSV.  
+   - Add a button to export each chart as PNG (or the whole dashboard as PDF).
+
+7. **Error Handling**  
+   - Gracefully handle missing values (show warning but still render).  
+   - If a column is not compatible with a chart type, grey it out or show a helpful tooltip.
+
+8. **Code Quality**  
+   - Write clean, commented code.  
+   - Use a single‑file app (if possible) for easy deployment.  
+   - Include requirements.txt or environment.yml.  
+   - Add a “How to use” section in the UI.
+
+9. **Output**  
+   - Generate the complete, runnable code for this dashboard.  
+   - Use **Streamlit (Python)** unless I specify otherwise.  
+   - Ensure the dashboard works with **any** dataset (not hard‑coded to column names).  
+   - The dashboard must start with a blank state and only activate after file upload.
+
+Please produce the full code now.
